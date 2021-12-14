@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <title>ArcGIS API for JavaScript Tutorials: Display a map</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+      html, body, #Button {
+        background-color: white;
+        padding: 15;
+        margin: 15;
+        height: 200;
+        width: 5;
+      }
+    </style>
+
+    </head>
+    <body>
+        <div id="viewDiv"><button id = "Button">Try It</button></div>
+
+        <script src="https://unpkg.com/@esri/arcgis-rest-request@3.0.0/dist/umd/request.umd.js"></script>
+        <script src="https://unpkg.com/@esri/arcgis-rest-auth@3.0.0/dist/umd/auth.umd.js"></script>
+        <script src="https://unpkg.com/@esri/arcgis-rest-demographics@3.0.0/dist/umd/demographics.umd.js"></script>
+
+        <script src="https://js.arcgis.com/4.21/"></script>
+
+        <script>
+            /*function showPosition(position) {
+                var your_location = [position.coords.longitude, position.coords.longitude]; //Latitude
+                return point;
+            }*/
+
+            require([
+                "esri/config",
+                "esri/Map", 
+                "esri/views/SceneView",
+                "esri/widgets/BasemapToggle", 
+                "esri/widgets/BasemapGallery", 
+                "esri/geometry/geometryEngine",
+                "esri/Graphic",
+                "esri/layers/GraphicsLayer",
+                "esri/widgets/Search",
+                "esri/core/watchUtils"], 
+                function (esriConfig,Map, SceneView, BasemapToggle, BasemapGallery, geometryEngine, Graphic, GraphicsLayer, Search, watchUtils) {
+                    
+                    
+                    esriConfig.apiKey = "AAPKd8ff6c32b3d34573a34777298c2fca76JES6c_lJasorR5SZ8fl1e03ZjKQtpJrwoF7o87mNDavORhcVFQlfRBga6C3AHNQk";
+
+                    const map = new Map({
+                        //basemap: "arcgis-navigation", // Basemap layer service
+                        basemap: "arcgis-topographic", //Basemap layer service
+                        ground: "world-elevation", //Elevation service
+                    });
+
+                    const view = new SceneView({
+                        container: "viewDiv",
+                        map: map,
+                        camera: {
+                        position: {
+                            x: -118.808, //Longitude
+                            y: 33.961, //Latitude
+                            z: 2000 //Meters
+                        },
+                        tilt: 75
+                        }
+                    });
+                    
+                    const basemapToggle = new BasemapToggle({
+                        view: view,
+                        nextBasemap: "arcgis-imagery"
+                    });
+
+                    view.ui.add(basemapToggle,"bottom-right");
+
+                    const basemapGallery = new BasemapGallery({
+                        view: view,
+                        source: {
+                            query: {
+                            title: '"World Basemaps for Developers" AND owner:esri'
+                            }
+                        }
+                    });
+
+                    view.ui.add(basemapGallery, "top-right"); // Add to the view
+                    view.ui.add(document.getElementById("Button"),"top-left");
+
+                    function showData(city, attributes, point) {
+                        const title = `Global facts near ${city}`;
+                        const content =
+                        `Population: ${attributes.TOTPOP}<br>Males: ${attributes.TOTMALES} <br>Females: ${attributes.TOTFEMALES}<br>Average Household Size: ${attributes.AVGHHSZ}`;
+                        
+                        view.popup.open({
+                            location: point,
+                            title: title,
+                            content: content
+                        });
+
+                        const buffer = geometryEngine.geodesicBuffer(point, 1, "miles");
+                        const graphicBuffer = new Graphic({
+                            geometry: buffer,
+                            symbol: {
+                                type: "simple-fill",
+                                color: [50, 50, 50, 0.1],
+                                outline: {
+                                    color: [0, 0, 0, 0.25],
+                                    width: .5
+                                }
+                            }
+                        })
+                        view.graphics.removeAll();
+                        view.graphics.add(graphicBuffer);
+                    }
+
+                    const graphicsLayer = new GraphicsLayer();
+                    map.add(graphicsLayer);
+
+                    const point = { //Create a point
+                        type: "point",
+                        longitude: -118.80657463861,
+                        latitude: 34.0005930608889
+                    };
+
+                    const simpleMarkerSymbol = {
+                        type: "simple-marker",
+                        color: [226, 119, 40],  // Orange
+                        outline: {
+                            color: [255, 255, 255], // White
+                            width: 1
+                        }
+                    };
+                    
+                    const pointGraphic = new Graphic({
+                        geometry: point,
+                        symbol: simpleMarkerSymbol
+                    });
+                    graphicsLayer.add(pointGraphic);
+
+                        // Create a line geometry
+                    const polyline = {
+                        type: "polyline",
+                        paths: [
+                            [-118.821527826096, 34.0139576938577], //Longitude, latitude
+                            [-118.814893761649, 34.0080602407843], //Longitude, latitude
+                            [-118.808878330345, 34.0016642996246]  //Longitude, latitude
+                        ]
+                    };
+                    const simpleLineSymbol = {
+                        type: "simple-line",
+                        color: [226, 119, 40], // Orange
+                        width: 2
+                    };
+                    
+                    const polylineGraphic = new Graphic({
+                        geometry: polyline,
+                        symbol: simpleLineSymbol
+                    });
+                    graphicsLayer.add(polylineGraphic);
+
+                    // Create a polygon geometry
+                    const polygon = {
+                        type: "polygon",
+                        rings: [
+                            [-118.818984489994, 34.0137559967283], //Longitude, latitude
+                            [-118.806796597377, 34.0215816298725], //Longitude, latitude
+                            [-118.791432890735, 34.0163883241613], //Longitude, latitude
+                            [-118.79596686535, 34.008564864635],   //Longitude, latitude
+                            [-118.808558110679, 34.0035027131376]  //Longitude, latitude
+                        ]
+                    };
+
+                    const simpleFillSymbol = {
+                        type: "simple-fill",
+                        color: [227, 139, 79, 0.8],  // Orange, opacity 80%
+                        outline: {
+                            color: [255, 255, 255],
+                            width: 1
+                        }
+                    };
+
+                    const popupTemplate = {
+                        title: "{Name}",
+                        content: "{Description}"
+                    }
+
+                    const attributes = {
+                        Name: "Graphic",
+                        Description: "I am a polygon"
+                    }
+
+                    const polygonGraphic = new Graphic({
+                        geometry: polygon,
+                        symbol: simpleFillSymbol,
+                        
+                        attributes: attributes,
+                        popupTemplate: popupTemplate
+
+                    });
+                    graphicsLayer.add(polygonGraphic);
+
+                    const search = new Search({  //Add Search widget
+                        view: view
+                    });
+
+                    view.ui.add(search, "bottom-left"); //Add to the map
+
+                    search.on("select-result", (event) => { //get's demographi data when search is called
+                        getDemographicData(event.result.name, event.result.feature.geometry);
+                    });
+
+                
+                    function getDemographicData(city, point) {
+                            // Request demographic data
+                            /*arcgisRest.queryDemographicData({
+                            studyAreas: [{
+                                "geometry": {
+                                    "x": point.longitude,
+                                    "y": point.latitude
+                                }
+                            }],
+                            //authentication: authentication //get data if your apiKey authenticates this
+                        })*/
+                        //.then((response) => { //if above 'promise' is true then do this
+                        if (city == "Seattle, Washington") {
+                            const attributes = {
+                                TOTPOP: "1",
+                                TOTMALES: "20:",
+                                TOTFEMALES: "26",
+                                AVGHHSZ: "5",
+                            };
+                            showData(city, attributes, point);
+                        }
+                        //});
+                    }  
+                }
+            );
+
+
+
+
+
+              /*const authentication = new arcgisRest.ApiKey({
+                        key: "AAPKd8ff6c32b3d34573a34777298c2fca76JES6c_lJasorR5SZ8fl1e03ZjKQtpJrwoF7o87mNDavORhcVFQlfRBga6C3AHNQk"
+                    });*/
+            /*
+             /*const view = new MapView({
+                        map: map,
+                        center: [-122.3321,47.6062], // Longitude, latitude
+                        zoom: 12, // Zoom level
+                        container: "viewDiv" // Div element
+                    });
+                    view.on("click", e => { //if user clicks on map return demographic data to them
+                        const params = {
+                            location: e.mapPoint, //finds point clicked on
+                            outFields: "*"
+                        };
+                        search.activeSource.locator.locationToAddress(params) //returns selected city
+
+                            .then(function (response) { // Show the address found
+                                const city = response.attributes.City || response.attributes.Region;
+                                getDemographicData(city, params.location);
+                            });
+                    });
+
+                    /*const button = document.getElementById("Button")
+                    button.addEventListener("click", getLocation())
+                    function getLocation() {
+                        try {
+                            navigator.geolocation.getCurrentPosition(showPosition);
+                        } catch {
+                            //x.innerHTML = err;
+                            console.log(err);
+                        }
+                    }
+
+                    function showPosition(position) {
+                        console.log("hello");
+                        const params = {
+                            location: position.mapPoint, //finds point clicked on
+                            outFields: "*"
+                        };
+                        search.activeSource.locator.locationToAddress(params) //returns selected city
+
+                            .then(function (response) { // Show the address found
+                                const city = response.attributes.City || response.attributes.Region;
+                                getDemographicData(city, params.location);
+                        });
+                    }*/
+
+        </script>
+    </body>
+</html>
