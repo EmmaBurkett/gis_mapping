@@ -64,7 +64,7 @@
                         ground: "world-elevation", //Elevation service
                     });
 
-                    const view = new SceneView({
+                    const view = new SceneView({ //starting postion on load
                         container: "viewDiv",
                         map: map,
                         camera: {
@@ -77,14 +77,14 @@
                         }
                     });
                     
-                    const basemapToggle = new BasemapToggle({
+                    const basemapToggle = new BasemapToggle({ //toggle in the bottom right
                         view: view,
                         nextBasemap: "arcgis-imagery"
                     });
 
                     view.ui.add(basemapToggle,"bottom-right");
 
-                    const basemapGallery = new BasemapGallery({
+                    const basemapGallery = new BasemapGallery({ //map choices in the top-right
                         view: view,
                         source: {
                             query: {
@@ -93,21 +93,21 @@
                         }
                     });
 
-                    view.ui.add(basemapGallery, "top-right"); // Add to the view
-                    view.ui.add(document.getElementById("Button"),"top-left");
+                    view.ui.add(basemapGallery, "top-right"); // Add to the view 
+                    view.ui.add(document.getElementById("Button"),"top-left"); //add to the top-left
 
-                    function showData(city, attributes, point) {
+                    function showData(city, attributes, point) { //show dummy data for seattle
                         const title = `Global facts near ${city}`;
                         const content =
-                        `Population: ${attributes.TOTPOP}<br>Males: ${attributes.TOTMALES} <br>Females: ${attributes.TOTFEMALES}<br>Average Household Size: ${attributes.AVGHHSZ}`;
+                        `Population: ${attributes.TOTPOP}<br>Males: ${attributes.TOTMALES} <br>Females: ${attributes.TOTFEMALES}<br>Average Household Size: ${attributes.AVGHHSZ}`; //content for popup
                         
-                        view.popup.open({
+                        view.popup.open({ //open popup
                             location: point,
                             title: title,
                             content: content
                         });
 
-                        const buffer = geometryEngine.geodesicBuffer(point, 1, "miles");
+                        const buffer = geometryEngine.geodesicBuffer(point, 1, "miles"); //colors the area of seattle
                         const graphicBuffer = new Graphic({
                             geometry: buffer,
                             symbol: {
@@ -132,7 +132,7 @@
                         latitude: 34.0005930608889
                     };
 
-                    const simpleMarkerSymbol = {
+                    const simpleMarkerSymbol = { //color 
                         type: "simple-marker",
                         color: [226, 119, 40],  // Orange
                         outline: {
@@ -141,11 +141,11 @@
                         }
                     };
                     
-                    const pointGraphic = new Graphic({
+                    const pointGraphic = new Graphic({ //create a point with a color
                         geometry: point,
                         symbol: simpleMarkerSymbol
                     });
-                    graphicsLayer.add(pointGraphic);
+                    graphicsLayer.add(pointGraphic); //add to object
 
                         // Create a line geometry
                     const polyline = {
@@ -162,11 +162,11 @@
                         width: 2
                     };
                     
-                    const polylineGraphic = new Graphic({
+                    const polylineGraphic = new Graphic({ //add line with color
                         geometry: polyline,
                         symbol: simpleLineSymbol
                     });
-                    graphicsLayer.add(polylineGraphic);
+                    graphicsLayer.add(polylineGraphic); //add to objet
 
                     // Create a polygon geometry
                     const polygon = {
@@ -180,7 +180,7 @@
                         ]
                     };
 
-                    const simpleFillSymbol = {
+                    const simpleFillSymbol = { //color
                         type: "simple-fill",
                         color: [227, 139, 79, 0.8],  // Orange, opacity 80%
                         outline: {
@@ -189,7 +189,7 @@
                         }
                     };
 
-                    const popupTemplate = {
+                    const popupTemplate = { //popup template
                         title: "{Name}",
                         content: "{Description}"
                     }
@@ -199,7 +199,7 @@
                         Description: "I am a polygon"
                     }
 
-                    const polygonGraphic = new Graphic({
+                    const polygonGraphic = new Graphic({ //set polygon with popup
                         geometry: polygon,
                         symbol: simpleFillSymbol,
                         
@@ -207,7 +207,7 @@
                         popupTemplate: popupTemplate
 
                     });
-                    graphicsLayer.add(polygonGraphic);
+                    graphicsLayer.add(polygonGraphic); //display object
 
                     const search = new Search({  //Add Search widget
                         view: view
@@ -233,7 +233,7 @@
                         })*/
                         //.then((response) => { //if above 'promise' is true then do this
                         if (city == "Seattle, Washington") {
-                            const attributes = {
+                            const attributes = { //dummy  data!
                                 TOTPOP: "1",
                                 TOTMALES: "20:",
                                 TOTFEMALES: "26",
